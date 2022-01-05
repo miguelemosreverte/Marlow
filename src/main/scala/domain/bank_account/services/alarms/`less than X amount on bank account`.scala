@@ -1,7 +1,7 @@
 package domain.bank_account.services.alarms
 
-import domain.bank_account.BankAccount
 import domain.bank_account.services.BankServices.Alarm
+import domain.bank_account.state.BankAccount
 import org.apache.kafka.streams.scala.ImplicitConversions._
 import org.apache.kafka.streams.scala.StreamsBuilder
 import org.apache.kafka.streams.scala.serialization.Serdes._

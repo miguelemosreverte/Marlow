@@ -1,4 +1,4 @@
-package domain.bank_account
+package domain.bank_account.entities
 
 object entities {
   sealed trait Entity

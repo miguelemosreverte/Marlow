@@ -1,9 +1,14 @@
-package domain.bank_account
+package domain.bank_account.state
 
 import domain.State
-import domain.bank_account.BankEvent.BankEvent
-import domain.bank_account.BankEvent.atomic._
-import domain.bank_account.entities.User
+import domain.bank_account.entities.entities.User
+import domain.bank_account.events.BankEvent.BankEvent
+import domain.bank_account.events.BankEvent.atomic.{
+  AddOwner,
+  Deposit,
+  RemoveOwner,
+  Withdraw
+}
 
 case class BankAccount(
     amount: Int,

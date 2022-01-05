@@ -1,4 +1,4 @@
-package domain.bank_account
+package domain.bank_account.errors
 
 // dealing with domain errors
 sealed trait BankErrors

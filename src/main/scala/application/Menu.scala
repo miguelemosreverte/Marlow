@@ -4,11 +4,13 @@ import scopt.OParser
 
 object Menu {
 
+  val builder = OParser.builder[Options]
+
+  import scopt.OParser
+
   def apply(args: Array[String]) =
     OParser.parse(menu, args, Options())
 
-  import scopt.OParser
-  val builder = OParser.builder[Options]
   private def menu = {
     import builder._
     OParser.sequence(

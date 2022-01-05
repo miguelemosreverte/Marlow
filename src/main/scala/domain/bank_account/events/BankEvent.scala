@@ -1,6 +1,6 @@
-package domain.bank_account
+package domain.bank_account.events
 
-import domain.bank_account.entities._
+import domain.bank_account.entities.entities.{BankAccountId, User}
 
 object BankEvent {
   sealed trait BankEvent
@@ -15,7 +15,9 @@ object BankEvent {
 
   object orchestration {
     sealed trait events extends BankEvent
-    case class TransferBankAccountToOtherOwner(from: User, to: User) extends events
-    case class TransferAllFunds(from: BankAccountId, to: BankAccountId) extends events
+    case class TransferBankAccountToOtherOwner(from: User, to: User)
+        extends events
+    case class TransferAllFunds(from: BankAccountId, to: BankAccountId)
+        extends events
   }
 }

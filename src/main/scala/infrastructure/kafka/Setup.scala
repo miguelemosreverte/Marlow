@@ -1,8 +1,8 @@
 package infrastructure.kafka
 
-import org.apache.kafka.streams.{KafkaStreams, StreamsConfig, Topology}
 import org.apache.kafka.streams.scala.StreamsBuilder
 import org.apache.kafka.streams.scala.serialization.Serdes
+import org.apache.kafka.streams.{KafkaStreams, StreamsConfig, Topology}
 
 import java.util.Properties
 
