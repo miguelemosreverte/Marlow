@@ -1,17 +1,13 @@
-package domain.bank_account
+package domain.bank_account.services.rules
 
+import domain.bank_account.BankAccount
+import domain.bank_account.services.BankServices.Alarm
 import org.apache.kafka.streams.scala.ImplicitConversions._
 import org.apache.kafka.streams.scala.StreamsBuilder
 import org.apache.kafka.streams.scala.serialization.Serdes._
 
-trait BankServices
-object BankServices {
-  trait Alarm[State] extends BankServices {
-    def predicate(key: String, state: State): Boolean
-    def perform(key: String, state: State): Unit
-  }
-  object Alarm {
-    class LessThanXAmountInBankAccount(
+
+ class LessThanXAmountInBankAccount(
         amount: Int,
         givenPerform: (String, BankAccount) => Unit
     )(implicit
@@ -31,5 +27,3 @@ object BankServices {
         .filter(predicate)
         .foreach(perform)
     }
-  }
-}
