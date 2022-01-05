@@ -13,8 +13,7 @@ import domain.bank_account.BankCommands.atomic.{
   MakeDeposit => DepositCommand
 }
 
-sealed trait rules extends BankRules[events]
-case object BankRules extends rules {
+case object AtomicRules extends BankRules[events] {
   import domain.bank_account.BankErrors._
   def validator(
       context: BankAccount

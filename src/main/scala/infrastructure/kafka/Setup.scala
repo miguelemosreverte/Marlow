@@ -1,7 +1,5 @@
 package infrastructure.kafka
 
-import application.{BankAccountAggregate, BankAccountAlarm}
-import infrastructure.kafka.Setup.builder
 import org.apache.kafka.streams.{KafkaStreams, StreamsConfig, Topology}
 import org.apache.kafka.streams.scala.StreamsBuilder
 import org.apache.kafka.streams.scala.serialization.Serdes
@@ -9,7 +7,7 @@ import org.apache.kafka.streams.scala.serialization.Serdes
 import java.util.Properties
 
 object Setup {
-  def apply(givenAplication: StreamsBuilder => ()): Unit = {
+  def apply(givenAplication: StreamsBuilder => Unit): Unit = {
     implicit val kafkaProps: Properties = {
       val props = new Properties
       props.put(StreamsConfig.APPLICATION_ID_CONFIG, "orders-application")

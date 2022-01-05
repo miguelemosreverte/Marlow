@@ -11,7 +11,7 @@ object Main {
           if (options.bankAccountAggregate)
             BankAccountAggregate()
           if (options.bankAccountAlarm)
-            BankAccountAlarm()
+            BankAccountAlarms()
         case _ =>
           println("""
               |To see the available options use --help 

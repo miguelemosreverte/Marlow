@@ -1,6 +1,9 @@
 package application
 
+import domain.bank_account.BankEvent.BankEvent
 import domain.bank_account._
+import domain.bank_account.services.BankServices.BankRules
+import domain.bank_account.services.rules.BankRules
 import infrastructure.kafka.optimistic_concurrency_control.CQRSESKafkaSimple.CQRSESKafkaSimple
 import org.apache.kafka.streams.scala.StreamsBuilder
 
@@ -15,7 +18,7 @@ object BankAccountAggregate {
       BankEvent,
       BankAccount,
       BankErrors,
-      BankRules
+      BankRules[BankEvent]
     ]("BankAccount", BankAccount(0, Set.empty), BankRules)
 
   }

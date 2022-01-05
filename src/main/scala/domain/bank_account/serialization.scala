@@ -1,39 +1,46 @@
 package domain.bank_account
 
-import domain.bank_account.BankEvent.AddOwner
+import domain.bank_account.BankEvent.BankEvent
 
 object serialization {
   object json {
+
     import io.leonard.TraitFormat.{caseObjectFormat, traitFormat}
     import play.api.libs.json.Json.format
     import play.api.libs.json._
 
-    implicit val bankCommandsFormat = traitFormat[BankCommands] <<
-      format[BankCommands.AddOwner] <<
-      format[BankCommands.RemoveOwner] <<
-      format[BankCommands.MakeDeposit] <<
-      format[BankCommands.MakeWithdraw]
+    implicit val user =
+      format[domain.bank_account.entities.User]
+    implicit val bankAccountId =
+      format[domain.bank_account.entities.BankAccountId]
 
-    implicit val bankEventsFormat = traitFormat[BankEvent] <<
-      format[BankEvent.AddOwner] <<
-      format[BankEvent.RemoveOwner] <<
-      format[BankEvent.Deposit] <<
-      format[BankEvent.Withdraw]
+    implicit val bankCommandsFormat = {
+      import domain.bank_account.BankCommands.atomic._
+      traitFormat[BankCommands] <<
+        format[AddOwner] <<
+        format[RemoveOwner] <<
+        format[MakeDeposit] <<
+        format[MakeWithdraw]
+    }
 
-    implicit val bankErrorsFormat = traitFormat[BankErrors] <<
-      caseObjectFormat(BankErrors.BalanceMustBePositive) <<
-      caseObjectFormat(BankErrors.OnlyOwnerOfAccountCanWithdraw) <<
-      caseObjectFormat(BankErrors.AccountMustHaveAtleastOneOwner)
+    implicit val bankEventsFormat = {
+      import domain.bank_account.BankEvent.atomic._
+      traitFormat[BankEvent] <<
+        format[AddOwner] <<
+        format[RemoveOwner] <<
+        format[Deposit] <<
+        format[Withdraw]
+    }
+
+    implicit val bankErrorsFormat = {
+      import domain.bank_account.BankErrors._
+      traitFormat[BankErrors] <<
+        caseObjectFormat(BalanceMustBePositive) <<
+        caseObjectFormat(OnlyOwnerOfAccountCanWithdraw) <<
+        caseObjectFormat(AccountMustHaveAtleastOneOwner)
+    }
 
     implicit val bankAccountFormat = format[BankAccount]
 
-    val doggyJson = bankEventsFormat.writes(AddOwner("1")).toString
-
-    val animal1: BankEvent = bankEventsFormat.reads(Json.parse(doggyJson)).get
-    animal1 == AddOwner("1")
-
-    bankEventsFormat
-      .writes(AddOwner("1"))
-      .toString() == """{"s":"owner","Cat"}"""
   }
 }

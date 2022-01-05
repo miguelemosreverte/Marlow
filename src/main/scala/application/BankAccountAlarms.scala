@@ -3,7 +3,7 @@ package application
 import domain.bank_account.services.alarms.`less than X amount on bank account`
 import org.apache.kafka.streams.scala.StreamsBuilder
 
-object BankAccountAlarm {
+object BankAccountAlarms {
 
   def apply()(implicit builder: StreamsBuilder) = {
     new `less than X amount on bank account`(

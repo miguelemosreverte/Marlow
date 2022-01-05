@@ -1,8 +1,8 @@
-package bank_account
+package domain.bank_account
 
 object entities {
-
-  case class User(name: String)
-  case class BankAccountId(id: String)
+  sealed trait Entity
+  case class User(name: String) extends Entity
+  case class BankAccountId(id: String) extends Entity
 
 }
