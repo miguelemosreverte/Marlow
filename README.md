@@ -2,7 +2,7 @@
 In this repository I will explore Kafka Streams
 
 The project provides the following topology:
-![](https://user-images.githubusercontent.com/9152392/148232597-a5db9890-3f19-4a13-b51a-db8ebe20b3c2.png)
+![](https://user-images.githubusercontent.com/9152392/148558655-e7de5d22-cb82-4535-a634-41d86796e96a.png)
 
 I will proceed to explain the idea in writing as well as providing live comentary over video.
 
