@@ -80,15 +80,13 @@ class ExampleKafkaStreamsSpecUnit
 
       println("Starting BankAccountAggregate")
       BankAccountAggregate()
-      BankAccountAlarms()
+      //BankAccountAlarms()
       val topology = builder.build()
       import org.apache.kafka.streams.TopologyTestDriver
 
       implicit val kafkaProps: Properties = {
         val props = new Properties
-        //props.put(StreamsConfig.APPLICATION_ID_CONFIG, "orders-application")
-        //props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
-        //props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, "exactly_once")
+        props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, "exactly_once")
         props.put(
           StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG,
           "org.apache.kafka.streams.errors.LogAndContinueExceptionHandler"
@@ -112,43 +110,24 @@ class ExampleKafkaStreamsSpecUnit
         JsonSerializer[BankCommands]()
       )
       val outputTopic = testDriver.createOutputTopic(
-        "BankAccount-snapshot",
+        "BankAccount-snapshots",
         JsonSerializer[BankAccountId](),
-        JsonSerializer[BankCommands]()
+        JsonSerializer[BankAccount]()
       )
 
       def setup = { account: BankAccountId => owner: User =>
-        (Seq(AddOwner(owner)) ++ (1 to 200).map(e => Deposit(1)))
+        (Seq(AddOwner(owner)) ++ (1 to 2).map(e => Deposit(1)))
           .foreach(inputTopic.pipeInput(account, _))
       }
 
       setup(BankAccountId("A"))(User("A"))
       setup(BankAccountId("B"))(User("B"))
 
-      object Topics {
-        val bankAccountCommands = "BankAccount-commands"
-        val bankAccountCommandsZippedWithIndex =
-          "BankAccount-commands-zippedWithIndex"
-        val bankAccountEvents = "BankAccount-events"
-        val bankAccountSnapshots = "BankAccount-snapshots"
-
-        def apply() = Seq(
-          bankAccountCommands,
-          bankAccountEvents,
-          bankAccountCommandsZippedWithIndex,
-          bankAccountSnapshots
-        )
-      }
-
-      import Topics._
-
       implicit val patienceConfig: PatienceConfig =
         PatienceConfig(150.seconds, 15.seconds)
 
       eventually {
         import scala.jdk.CollectionConverters._
-
-        println(topology.describe())
 
         testDriver
           .getKeyValueStore[BankAccountId, EnrichedState[
@@ -157,11 +136,30 @@ class ExampleKafkaStreamsSpecUnit
           ]]("BankAccount-snapshots-store")
           .get(BankAccountId("A")) should be(
           EnrichedState[BankEvent, BankAccount](
-            BankAccount(200, Set(User("A"))),
-            expectedVersion = 202
+            BankAccount(2, Set(User("A"))),
+            expectedVersion = 4
           )
         )
 
+      }
+
+      var lastSnapshotsById: Map[BankAccountId, BankAccount] = Map.empty
+      eventually {
+        import scala.jdk.CollectionConverters._
+        lastSnapshotsById = lastSnapshotsById ++ outputTopic
+          .readKeyValuesToMap()
+          .asScala
+          .toMap
+        println(
+          lastSnapshotsById
+        )
+
+        lastSnapshotsById(BankAccountId("A")) should be(
+          BankAccount(2, Set(User("A")))
+        )
+        lastSnapshotsById(BankAccountId("B")) should be(
+          BankAccount(2, Set(User("B")))
+        )
       }
 
     }

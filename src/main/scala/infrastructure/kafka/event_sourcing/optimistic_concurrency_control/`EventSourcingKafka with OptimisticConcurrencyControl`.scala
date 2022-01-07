@@ -1,7 +1,7 @@
 package infrastructure.kafka.event_sourcing.optimistic_concurrency_control
 
 import domain.{Rules, State}
-import infrastructure.kafka.event_sourcing.core.EventSourcingKafka
+import infrastructure.kafka.event_sourcing.core.`EventSourcingKafka core`
 import infrastructure.kafka.optimistic_concurrency_control.OptimisticConcurrencyControl
 import infrastructure.kafka.utils.KafkaStreamsUtils.{
   KStreamEitherUtils,
@@ -13,7 +13,7 @@ import org.apache.kafka.streams.scala.ImplicitConversions._
 import org.apache.kafka.streams.scala._
 import org.apache.kafka.streams.scala.kstream._
 
-class EventSourcingKeafka[
+protected[event_sourcing] class `EventSourcingKafka with OptimisticConcurrencyControl`[
     Key,
     Command <: OptimisticConcurrencyControl,
     Event,
@@ -31,13 +31,13 @@ class EventSourcingKeafka[
     eventsSerde: Serde[Seq[Event]],
     stateSerde: Serde[S],
     builder: StreamsBuilder
-) extends EventSourcingKafka[Key, Command, Event, S, Error, R](
+) extends `EventSourcingKafka core`[Key, Command, Event, S, Error, R](
       name,
       initialState,
       rules
     ) {
 
-  override def commands: KStream[Key, Command] =
+  override lazy val commands: KStream[Key, Command] =
     OptimisticConcurrencyControl(
       commandsTopic,
       builder.stream(commandsTopic)(

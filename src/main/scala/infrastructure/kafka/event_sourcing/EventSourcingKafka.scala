@@ -1,7 +1,7 @@
 package infrastructure.kafka.event_sourcing
 
 import domain.{Rules, State}
-import infrastructure.kafka.event_sourcing.core.EventSourcingKafka
+import infrastructure.kafka.event_sourcing.core.`EventSourcingKafka core`
 import infrastructure.kafka.utils.SerdeUtils.serde
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.streams.kstream.Named
@@ -72,7 +72,7 @@ class EventSourcingKafka[
           .withName(s"$zippedWithIndexTopic.out")
       )
 
-    new optimistic_concurrency_control.EventSourcingKeafka[
+    new optimistic_concurrency_control.`EventSourcingKafka with OptimisticConcurrencyControl`[
       Key,
       EnrichedCommand[Command],
       Event,
@@ -87,6 +87,19 @@ class EventSourcingKafka[
           rules.validator(context.state)(command.payload)
         }
     ) {
+      override def publishSnapshots: Unit = {
+        snapshots
+          .toStream(Named.as(s"$snapshotsTopic.toStream"))
+          .map(
+            { (k, v) =>
+              (k, v.state)
+            },
+            Named.as(s"$snapshotsTopic.simplify")
+          )
+          .to(s"$snapshotsTopic")(
+            Produced.`with`[Key, S].withName(s"$snapshotsTopic.out")
+          )
+      }
       override lazy val commandsTopic: String = zippedWithIndexTopic
     }.process
 

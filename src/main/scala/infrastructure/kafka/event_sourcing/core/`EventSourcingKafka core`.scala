@@ -1,5 +1,6 @@
 package infrastructure.kafka.event_sourcing.core
 
+import cats.effect.IO
 import domain.{Rules, State}
 import infrastructure.kafka.optimistic_concurrency_control.OptimisticConcurrencyControl
 import infrastructure.kafka.utils.KafkaStreamsUtils.{
@@ -7,12 +8,13 @@ import infrastructure.kafka.utils.KafkaStreamsUtils.{
   KTableDefaultValue
 }
 import org.apache.kafka.common.serialization.Serde
+import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.kstream.Named
 import org.apache.kafka.streams.scala.ImplicitConversions._
 import org.apache.kafka.streams.scala._
 import org.apache.kafka.streams.scala.kstream._
 
-abstract class EventSourcingKafka[
+protected[event_sourcing] abstract class `EventSourcingKafka core`[
     Key,
     Command,
     Event,
@@ -36,14 +38,14 @@ abstract class EventSourcingKafka[
   lazy val eventsTopic: String = s"${name}-events"
   lazy val snapshotsTopic: String = s"${name}-snapshots"
 
-  def eventsStream: KStream[Key, Event] =
+  lazy val eventsStream: KStream[Key, Event] =
     builder.stream[Key, Event](eventsTopic)(
       Consumed
         .`with`[Key, Event]
         .withName(s"$eventsTopic.in")
     )
 
-  def snapshots: KTable[Key, S] = eventsStream.groupByKey
+  lazy val snapshots: KTable[Key, S] = eventsStream.groupByKey
     .aggregate(
       initialState,
       org.apache.kafka.streams.kstream.Named.as(s"$snapshotsTopic.aggregate")
@@ -51,39 +53,50 @@ abstract class EventSourcingKafka[
       Materialized.as(s"$snapshotsTopic-store")
     )
 
-  def commands: KStream[Key, Command] =
+  lazy val commands: KStream[Key, Command] =
     builder.stream(commandsTopic)(
       Consumed
         .`with`[Key, Command]
         .withName(s"$commandsTopic.in")
     )
 
-  def process = {
-
+  def validateCommands = {
+    commands
+      .leftJoinWithDefault(initialState)(snapshots) { (command, state) =>
+        rules
+          .validator(state)
+          .apply(command)
+      }(
+        Joined
+          .`with`[Key, Command, S]
+          .withName(s"$commandsTopic-join-$snapshotsTopic")
+      )
+      .splitEither("commandValidation")(
+        "rejectedCommands",
+        "events"
+      )
+  }
+  def publishEvents = {
     val (rejectedCommands, events: KStream[Key, Seq[Event]]) =
-      commands
-        .leftJoinWithDefault(initialState)(snapshots) { (command, state) =>
-          rules
-            .validator(state)
-            .apply(command)
-        }(
-          Joined
-            .`with`[Key, Command, S]
-            .withName(s"$commandsTopic-join-$snapshotsTopic")
-        )
-        .splitEither("commandValidation")(
-          "rejectedCommands",
-          "events"
-        )
-
+      validateCommands
     events
       .flatMapValues(k => k, Named as s"$eventsTopic.flatten")
       .to(eventsTopic)(
         Produced.`with`[Key, Event].withName(s"$eventsTopic.out")
       )
-    snapshots.toStream.to(snapshotsTopic)(
-      Produced.`with`[Key, S].withName(s"$snapshotsTopic.out")
-    )
+  }
+  def publishSnapshots = {
+    snapshots.toStream
+      .map((k, v) => (k, v))
+      .to(snapshotsTopic)(
+        Produced.`with`[Key, S].withName(s"$snapshotsTopic")
+      )
+  }
+  def process = {
+
+    publishEvents
+    publishSnapshots
+
   }
 
 }

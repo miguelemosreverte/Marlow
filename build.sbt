@@ -21,3 +21,8 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.10" % Test
 libraryDependencies += "io.github.embeddedkafka" %% "embedded-kafka-streams" % "3.0.0"
 // https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams-test-utils
 libraryDependencies += "org.apache.kafka" % "kafka-streams-test-utils" % "3.0.0" % Test
+
+// https://mvnrepository.com/artifact/org.typelevel/cats-effect
+libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.0"
+// https://mvnrepository.com/artifact/org.typelevel/cats-core
+libraryDependencies += "org.typelevel" %% "cats-core" % "2.7.0"
