@@ -1,6 +1,6 @@
 package application
 
 case class Options(
-    bankAccountAggregate: Boolean = false,
-    bankAccountAlarm: Boolean = false
+    bankAccountAggregate: Boolean = true,
+    bankAccountAlarm: Boolean = true
 )

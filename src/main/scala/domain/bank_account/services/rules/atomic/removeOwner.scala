@@ -13,11 +13,11 @@ import domain.bank_account.state.BankAccount
 object removeOwner extends BankRules[atomic.RemoveOwner, RemoveOwnerCommand] {
   override def validator(
       context: BankAccount
-  ): RemoveOwnerCommand => Either[BankErrors, RemoveOwner] = {
+  ): RemoveOwnerCommand => Either[BankErrors, Seq[RemoveOwner]] = {
     case RemoveOwnerCommand(owner) =>
       if (context.owners.size == 1)
         Left(AccountMustHaveAtleastOneOwner)
       else
-        Right(RemoveOwner(owner))
+        Right(Seq apply RemoveOwner(owner))
   }
 }

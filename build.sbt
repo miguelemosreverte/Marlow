@@ -9,3 +9,15 @@ libraryDependencies ++= Seq(
   "io.leonard" %% "play-json-traits" % "1.5.1",
   "com.github.scopt" %% "scopt" % "4.0.1"
 )
+// https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.32"
+val logback = "1.2.3"
+libraryDependencies += "ch.qos.logback" % "logback-core" % logback
+libraryDependencies += "ch.qos.logback" % "logback-classic" % logback
+libraryDependencies += "io.github.embeddedkafka" % "embedded-kafka_2.13" % "3.0.0"
+// https://mvnrepository.com/artifact/org.scalatest/scalatest
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.10" % Test
+// https://mvnrepository.com/artifact/io.github.embeddedkafka/embedded-kafka-streams
+libraryDependencies += "io.github.embeddedkafka" %% "embedded-kafka-streams" % "3.0.0"
+// https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams-test-utils
+libraryDependencies += "org.apache.kafka" % "kafka-streams-test-utils" % "3.0.0" % Test

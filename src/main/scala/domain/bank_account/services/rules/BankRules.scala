@@ -12,12 +12,12 @@ import domain.bank_account.state.BankAccount
 case object BankRules extends BankRules[BankEvent, BankCommands] {
   override def validator(
       context: BankAccount
-  ): BankCommands => Either[BankErrors, BankEvent] = {
+  ): BankCommands => Either[BankErrors, Seq[BankEvent]] = {
     case c: BankCommands.atomic.command =>
       c match {
         case c: atomic.MakeWithdraw =>
           withdraw.validator(context)(c)
-        case c: atomic.MakeDeposit =>
+        case c: atomic.Deposit =>
           deposit.validator(context)(c)
         case c: atomic.AddOwner =>
           addOwner.validator(context)(c)

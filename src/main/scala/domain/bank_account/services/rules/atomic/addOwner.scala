@@ -12,8 +12,8 @@ import domain.bank_account.state.BankAccount
 object addOwner extends BankRules[atomic.AddOwner, AddOwnerCommand] {
   override def validator(
       context: BankAccount
-  ): AddOwnerCommand => Either[BankErrors, AddOwner] = {
+  ): AddOwnerCommand => Either[BankErrors, Seq[AddOwner]] = {
     case AddOwnerCommand(owner) =>
-      Right(AddOwner(owner))
+      Right(Seq apply AddOwner(owner))
   }
 }

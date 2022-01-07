@@ -11,9 +11,9 @@ object serialization {
     import io.leonard.TraitFormat.{caseObjectFormat, traitFormat}
     import play.api.libs.json.Json.format
 
-    implicit val user =
+    implicit val userFormat =
       format[entities.entities.User]
-    implicit val bankAccountId =
+    implicit val bankAccountIdFormat =
       format[entities.entities.BankAccountId]
 
     implicit val bankCommandsFormat = {
@@ -21,7 +21,7 @@ object serialization {
       traitFormat[BankCommands] <<
         format[AddOwner] <<
         format[RemoveOwner] <<
-        format[MakeDeposit] <<
+        format[Deposit] <<
         format[MakeWithdraw]
     }
 

@@ -1,8 +1,12 @@
 package infrastructure.kafka.optimistic_concurrency_control
 
 import org.apache.kafka.common.serialization.Serde
-import org.apache.kafka.streams.scala.ImplicitConversions._
-import org.apache.kafka.streams.scala.kstream.{KStream, KTable}
+import org.apache.kafka.streams.scala.kstream.{
+  Joined,
+  KStream,
+  KTable,
+  Produced
+}
 
 trait OptimisticConcurrencyControl {
   def expectedVersion: Long
@@ -23,18 +27,36 @@ object OptimisticConcurrencyControl {
       .leftJoin(table) { (command, state) =>
         println("Reading from state")
         Option(state) match {
-          case Some(state)
-              if command.expectedVersion != state.expectedVersion =>
+          case Some(state) if command.expectedVersion > state.expectedVersion =>
+            println(
+              s"""
+                 |Expected version difference, rejecting: ${command.expectedVersion} ${state.expectedVersion} -- ${command} ${state}
+                 |The version of the state is below expected. This means that there is a change incoming that we need to wait for.
+                 |""".stripMargin
+            )
+            Left apply command
+          case Some(state) if command.expectedVersion < state.expectedVersion =>
+            println(
+              s"""
+                 |Expected version difference, rejecting: ${command.expectedVersion} ${state.expectedVersion} -- ${command} ${state}
+                 |The version of the state is more than expected. I dont know what this means.
+                 |""".stripMargin
+            )
+
             Left apply command
           case _ => Right apply command
         }
-      }
+      }(
+        Joined
+          .`with`[Key, A, B]
+          .withName(s"$topic-join-${table.queryableStoreName}")
+      )
       .splitEither("optimisticConcurrencyControl")(
         "retry",
         "proceed"
       )
 
-    retry.to(topic)
+    retry.to(topic)(Produced.`with`[Key, A].withName(s"$topic-retry.out"))
     proceed
 
   }

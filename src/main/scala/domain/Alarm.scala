@@ -1,6 +1,6 @@
 package domain
 
-trait Alarm[State] {
-  def predicate(key: String, state: State): Boolean
-  def perform(key: String, state: State): Unit
+trait Alarm[Key, State] {
+  def predicate: (Key, State) => Boolean
+  def perform: (Key, State) => Unit
 }

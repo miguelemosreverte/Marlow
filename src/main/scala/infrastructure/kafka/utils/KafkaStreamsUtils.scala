@@ -22,8 +22,16 @@ object KafkaStreamsUtils {
         .branch((key, either) => either.isRight, Branched.as(rightTopicName))
         .noDefaultBranch()
       (
-        branches(s"$splitName-$leftTopicName").mapValues((k, v) => v.left.get),
-        branches(s"$splitName-$rightTopicName").mapValues((k, v) => v.right.get)
+        branches(s"$splitName-$leftTopicName")
+          .mapValues(
+            (k, v) => v.left.get,
+            Named.as(s"$splitName-$leftTopicName.left")
+          ),
+        branches(s"$splitName-$rightTopicName")
+          .mapValues(
+            (k, v) => v.right.get,
+            Named.as(s"$splitName-$rightTopicName.right")
+          )
       )
     }
 

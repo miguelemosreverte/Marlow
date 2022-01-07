@@ -14,6 +14,10 @@ object Setup {
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
       props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, "exactly_once")
       props.put(
+        StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG,
+        "org.apache.kafka.streams.errors.LogAndContinueExceptionHandler"
+      )
+      props.put(
         StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
         Serdes.stringSerde.getClass
       )

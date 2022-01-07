@@ -7,17 +7,28 @@ object BankEvent {
 
   object atomic {
     sealed trait events extends BankEvent
-    case class Withdraw(amount: Int) extends events
-    case class Deposit(amount: Int) extends events
-    case class AddOwner(owner: User) extends events
-    case class RemoveOwner(owner: User) extends events
+
+    sealed trait TransferAmount extends events
+
+    sealed trait TransferOwner extends events
+
+    case class Withdraw(amount: Int) extends TransferAmount
+
+    case class Deposit(amount: Int) extends TransferAmount
+
+    case class AddOwner(owner: User) extends TransferOwner
+    case class RemoveOwner(owner: User) extends TransferOwner
   }
 
   object orchestration {
     sealed trait events extends BankEvent
-    case class TransferBankAccountToOtherOwner(from: User, to: User)
-        extends events
-    case class TransferAllFunds(from: BankAccountId, to: BankAccountId)
-        extends events
+    case class TransferBankAccountToOtherOwner(
+        id: BankAccountId,
+        action: atomic.TransferOwner
+    ) extends events
+    case class TransferAllFunds(
+        id: BankAccountId,
+        action: atomic.TransferAmount
+    ) extends events
   }
 }

@@ -16,7 +16,7 @@ import domain.bank_account.state.BankAccount
 object withdraw extends BankRules[atomic.Withdraw, WithdrawCommand] {
   override def validator(
       context: BankAccount
-  ): WithdrawCommand => Either[BankErrors, Withdraw] = {
+  ): WithdrawCommand => Either[BankErrors, Seq[Withdraw]] = {
     case WithdrawCommand(who, amount) =>
       context.owners contains who match {
         case false =>
@@ -25,7 +25,7 @@ object withdraw extends BankRules[atomic.Withdraw, WithdrawCommand] {
           if (context.amount < amount)
             Left(BalanceMustBePositive)
           else
-            Right(Withdraw(amount))
+            Right(Seq apply Withdraw(amount))
       }
   }
 }
