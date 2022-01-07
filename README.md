@@ -49,6 +49,8 @@ Also the retry system was just a matter of enqueuen back again the command in th
 This could blow up Kafka. Or not. A careful configuration of retention times can achieve this pattern without endangering the memory/disk usage.
 Commands are not persisted. And the retention time in memory is of 60 seconds. Events are persisted. Commands are a fire and forget pattern.
 
-
+# Technical talk
+![](https://videoapi-muybridge.vimeocdn.com/animated-thumbnails/image/9533e3cd-a743-4535-bb27-22f4b5e2f705.gif?ClientID=vimeo-core-prod&Date=1641400794&Signature=537a12d7e214d3d21969a921d4415b0de304df2f)
+https://vimeo.com/662646376
 
 
